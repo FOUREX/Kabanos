@@ -1,0 +1,5 @@
+aiogram==2.19
+motor==2.5.1
+nest-asyncio==1.5.4
+requests==2.27.1
+dnspython==2.2.1

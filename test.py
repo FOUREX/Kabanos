@@ -7,5 +7,4 @@ def get_alerts() -> dict:
 
     return {"alerts": [alert["n"] for alert in alerts["alerts"]], "updated_at": f"{alerts_updated[0]} {alerts_updated[1]}"}
 
-a = "ad"
-print(a.endswith("d"))
+print(get_alerts())

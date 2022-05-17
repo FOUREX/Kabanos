@@ -6,6 +6,8 @@ import requests
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from aiogram import Bot, Dispatcher, executor, types
+from datetime import datetime
+from psutil import virtual_memory, cpu_percent
 from config import config
 
 
@@ -24,6 +26,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(config["token"])
 dp = Dispatcher(bot)
 server_prefix = {}
+start_time = datetime.now()
 
 
 def debug(obj: object): # Работает - не трогай
@@ -84,7 +87,7 @@ class Command:
 async def alerts(message: types.Message):
     try:
         alerts = await get_alerts()
-        places = '/n'.join([alert + ' обл.' if alert.endswith('а') else '' for alert in alerts['alerts']])
+        places = '\n'.join([alert + ' обл.' if alert.endswith('а') else alert for alert in alerts['alerts']])
         updated_at = alerts['updated_at']
         await message.answer(f"*Список місць з повітряною тревогою*:\n\n{places}\n\nДані станом на: `{updated_at}`", parse_mode="Markdown")
     except Exception as e:
@@ -116,6 +119,14 @@ async def set_prefix(message: types.Message):
         await load_server_prefix()
     else:
         await message.reply("Ця команда доступна лише адміністаторам чату!")"""
+
+
+@dp.message_handler(commands=["info"]) # Работает - не трогай
+async def info(message: types.Message):  # type: ignore
+    uptime = str(datetime.now() - start_time).split(".")[0]
+    memory_usage = f"{virtual_memory().used // 1024 // 1024}/{virtual_memory().total // 1024 // 1024} МБ ({virtual_memory().percent}%)"
+    cpu_load = f"{cpu_percent()}%"
+    await message.answer(f"*Аптайм*: {uptime}\n*ОЗУ*: {memory_usage}\n*ЦПУ*: {cpu_load}\n[Разраб](tg://user?id={config['dev']})|[GitHub](https://github.com/FOUREX/Kabanos)", parse_mode="Markdown")
 
 
 @dp.message_handler()
